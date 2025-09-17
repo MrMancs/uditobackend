@@ -6,6 +6,41 @@ const port = 3333
 
 app.use(express.json())
 
+app.get("/uditok", (req, res) => {
+    fs.readFile("uditok.txt", (err, data) => {
+        if (err) res.status(404).json({fileError: err})
+        else {
+            if (data) {
+                //OK
+                console.log("GET /uditok data", data)
+
+                
+                const lines = data.toString().split("\n")
+                console.log("lines", lines)
+
+                const responseBodyArr = lines.map(line=> {
+                    
+                    if(line.length >= 1) {
+                        const elements = line.split(";")
+                        return {
+                            id: +elements[0],
+                            nev: elements[1],
+                            liter: +elements[2],
+                            "bubis-e": elements[3].trim() == 'true'
+                        }
+                    } else return undefined  
+                })
+                if (!responseBodyArr[responseBodyArr.length-1]) responseBodyArr.pop()
+
+                console.log("responseBodyArr", responseBodyArr)
+
+                //TODO
+                res.status(200).json(responseBodyArr)
+            } else res.status(404).json({fileError: data})
+        }
+    })
+})
+
 app.post('/udito/:id', (req, res) => {
     //{"nev":"Sprite","liter":1,"bubis-e":true}
 
